@@ -1,8 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { SelectBudgetOptions, SelectTravelesList } from "@/constants/Options";
+import {
+  AI_PROMPT,
+  SelectBudgetOptions,
+  SelectTravelesList,
+} from "@/constants/Options";
 import React, { useEffect, useState } from "react";
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
+import { toast } from "sonner";
+import { getJsonResponse } from "./../service/AIModel";
 
 const CreateTrip = () => {
   const [place, setPlace] = useState();
@@ -21,11 +27,32 @@ const CreateTrip = () => {
   }, [formData]);
 
   const onGenarateTrip = () => {
-    if (formData?.noOfDays > 5) {
+    const { noOfDays, location, budget, travellers } = formData;
+
+    if (!noOfDays || !location || !budget || !travellers) {
+      toast.error("Please fill all details");
       return;
     }
 
-    console.log(formData);
+    const FINAL_PROMPT = AI_PROMPT.replace(
+      "{location}",
+      formData?.location?.label
+    )
+      .replace("{noOfDays}", formData?.noOfDays)
+      .replace("{travellers}", formData?.travellers)
+      .replace("{budget}", formData?.budget)
+      .replace("{travellers}", formData?.travellers);
+
+    const prompt = AI_PROMPT;
+    // getJsonResponse(prompt).then((json) => {
+    //   console.log(json);
+    // });
+
+    getJsonResponse(prompt).then((data) =>
+      console.log("✅ JSON Response:", data)
+    );
+
+    console.log(FINAL_PROMPT);
   };
 
   return (
